@@ -2,11 +2,34 @@ url: https://dshkol.github.io/acsmoe/
 
 template:
   bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#0054AD"
+    border-radius: 0.5rem
+    btn-border-radius: 0.25rem
+
+home:
+  title: ACS MOE Uncertainty Propagation
+  description: >
+    Propagate uncertainty for American Community Survey tabular estimates,
+    with tidycensus-compatible MOE workflows and optional covariance handling.
 
 navbar:
   structure:
     left: [intro, reference, articles]
-    right: [github]
+    right: [search, github]
+  components:
+    intro:
+      text: Get started
+      href: articles/tidycensus-workflow.html
+    articles:
+      text: Articles
+      menu:
+        - text: Workflows
+        - text: Using acsmoe with tidycensus
+          href: articles/tidycensus-workflow.html
+        - text: Mapping ACS uncertainty
+          href: articles/tidycensus-maps.html
 
 articles:
   - title: Workflows
