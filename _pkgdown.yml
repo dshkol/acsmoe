@@ -1,0 +1,40 @@
+url: https://dshkol.github.io/acsmoe/
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [github]
+
+articles:
+  - title: Workflows
+    navbar: Workflows
+    contents:
+      - tidycensus-workflow
+      - articles/tidycensus-maps
+
+reference:
+  - title: Core Propagation
+    contents:
+      - acs_sum
+      - acs_diff
+      - acs_ratio
+      - acs_prop
+      - acs_product
+      - acs_linear
+  - title: Simulation
+    contents:
+      - acs_simulate
+      - acs_simulate_fn
+  - title: Aggregation
+    contents:
+      - acs_aggregate
+  - title: Conversion and Diagnostics
+    contents:
+      - moe_to_se
+      - se_to_moe
+      - moe_ci
+      - acs_cv
+      - acs_reliability

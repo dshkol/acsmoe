@@ -1,0 +1,175 @@
+---
+title: "Using acsmoe with tidycensus"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using acsmoe with tidycensus}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+`tidycensus` is the right tool for downloading ACS estimates and margins of
+error. `acsmoe` starts after that: it works with estimate/MOE columns that you
+already have.
+
+Kyle Walker's `tidycensus` article on ACS margins of error shows the standard
+workflow and the standard Census approximation formulas:
+<https://walker-data.com/tidycensus/articles/margins-of-error.html>.
+
+That article demonstrates `tidycensus::moe_sum()`, `tidycensus::moe_prop()`,
+`tidycensus::moe_ratio()`, and `tidycensus::moe_product()`. It also quotes the
+Census warning that these approximation methods do not account for correlation
+or covariance between basic estimates. `acsmoe` is intended for the same
+tabular ACS regime, but exposes covariance-aware extensions and a grouped
+aggregation helper.
+
+## Pull data with tidycensus
+
+This example mirrors the shape of Walker's MOE vignette: pull tract-level ACS
+age-by-sex cells, then aggregate those cells into a derived total. The call is
+not evaluated in this vignette because it requires network access and, in many
+setups, a Census API key.
+
+```{r, eval = FALSE}
+library(tidycensus)
+library(dplyr)
+library(acsmoe)
+
+vars <- paste0("B01001_0", c(20:25, 44:49))
+
+ramsey <- get_acs(
+  geography = "tract",
+  variables = vars,
+  state = "MN",
+  county = "Ramsey",
+  year = 2016
+)
+
+ramsey65 <- ramsey |>
+  group_by(GEOID) |>
+  summarize(
+    estimate_65plus = sum(estimate),
+    moe_65plus = acs_sum(estimate, moe)$moe,
+    .groups = "drop"
+  )
+```
+
+With no covariance supplied, `acs_sum()` intentionally reduces to the same
+zero-covariance root-sum-square calculation used by `tidycensus::moe_sum()`.
+That makes it a drop-in bridge from the standard workflow to more explicit
+uncertainty propagation.
+
+The package website includes a fuller `tidycensus` example with evaluated maps
+when the site is built with Census API credentials. That example is kept out of
+CRAN vignette evaluation because it requires network access, `sf` geometries,
+and current ACS API availability.
+
+## Work from paired estimate/MOE columns
+
+Many ACS workflows become wide after `tidycensus::get_acs(output = "wide")`, or
+after a user-created join. `acs_aggregate()` handles this paired-column form.
+
+```{r}
+library(acsmoe)
+
+tracts <- data.frame(
+  region = c("north", "north", "south", "south"),
+  population = c(1000, 1200, 900, 1100),
+  population_moe = c(120, 140, 100, 130),
+  households = c(420, 500, 360, 440),
+  households_moe = c(60, 70, 50, 65)
+)
+
+acs_aggregate(
+  tracts,
+  group_var = "region",
+  value_cols = c("population", "households"),
+  moe_cols = c("population_moe", "households_moe")
+)
+```
+
+The default `cov_strategy = "zero"` is deliberately conservative in the API
+sense: it matches the standard Census approximation behavior. It should not be
+read as a claim that tract estimates are truly independent.
+
+## Add covariance when you have it
+
+If a covariance matrix is available from an external method, pass it on the
+standard-error scale. Do not pass covariance of MOEs.
+
+```{r}
+estimates <- c(1000, 1200)
+moes <- c(120, 140)
+ses <- moe_to_se(moes)
+
+cov_mat <- matrix(
+  c(ses[1]^2, 1500,
+    1500, ses[2]^2),
+  nrow = 2
+)
+
+acs_sum(estimates, moes, cov = cov_mat)
+```
+
+For aggregation, `cov_strategy = "constant"` accepts a scalar correlation and
+constructs a valid covariance matrix from the input MOEs. This is useful for
+sensitivity analysis, not as an automatic estimator of ACS covariance.
+
+```{r}
+acs_aggregate(
+  tracts,
+  group_var = "region",
+  value_cols = "population",
+  moe_cols = "population_moe",
+  cov_strategy = "constant",
+  cov_value = 0.25
+)
+```
+
+## What this package does not do
+
+`acsmoe` does not download ACS data. Use `tidycensus` for that.
+
+`acsmoe` does not estimate variance from microdata. Use `survey` or `srvyr` for
+PUMS and replicate-weight workflows.
+
+`acsmoe` also does not implement regionalization. Walker's `tidycensus` MOE
+article points readers to Spielman and Folch's regionalization work and an old
+Python implementation. That historical code lives at
+<https://github.com/geoss/censumander>. We used it as development-only
+reference material for formula checks, but regionalization itself is out of
+scope for this package.
+
+The boundary is intentional: `acsmoe` focuses on propagation of uncertainty for
+tabular estimate/MOE workflows after ACS data have already been obtained.
+
+## References
+
+- U.S. Census Bureau. 2020. *Understanding and Using American Community Survey
+  Data: What All Data Users Need to Know*. See Chapter 8, "Calculating Measures
+  of Error for Derived Estimates."
+  <https://www.census.gov/programs-surveys/acs/library/handbooks/general.html>
+- Walker, Kyle, and Matt Herman. 2025. `tidycensus`: Load US Census Boundary
+  and Attribute Data as `tidyverse` and `sf`-Ready Data Frames.
+  <https://CRAN.R-project.org/package=tidycensus>
+- Walker, Kyle. "Margins of error in the ACS."
+  <https://walker-data.com/tidycensus/articles/margins-of-error.html>
+- Spielman, Seth E., David Folch, and Nicholas Nagle. 2014. "Patterns and
+  Causes of Uncertainty in the American Community Survey." *Applied Geography*
+  46: 147-157. <https://doi.org/10.1016/j.apgeog.2013.11.002>
+- Spielman, Seth E., and David C. Folch. 2015. "Reducing Uncertainty in the
+  American Community Survey through Data-Driven Regionalization." *PLOS ONE*
+  10(2): e0115626. <https://doi.org/10.1371/journal.pone.0115626>
+- Folch, David C., Daniel Arribas-Bel, Julia Koschinsky, and Seth E. Spielman.
+  2016. "Spatial Variation in the Quality of American Community Survey
+  Estimates." *Demography* 53(5): 1535-1554.
+  <https://doi.org/10.1007/s13524-016-0499-1>
+- Folch, David C., and Seth E. Spielman. `geoss/censumander`. Historical Python
+  reference implementation used here only for development validation.
+  <https://github.com/geoss/censumander>

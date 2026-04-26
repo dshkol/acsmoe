@@ -1,0 +1,10 @@
+citHeader("To cite acsmoe in publications use:")
+
+bibentry(
+  bibtype = "Manual",
+  title = "acsmoe: Propagate Uncertainty for ACS Tabular Estimates",
+  author = person("Dmitry", "Shkolnik"),
+  year = "2026",
+  note = "R package version 0.1.0.9000",
+  url = "https://github.com/dshkol/acsmoe"
+)

@@ -1,0 +1,237 @@
+---
+title: "Mapping ACS uncertainty with tidycensus"
+description: >
+  A pkgdown-only worked example using live tidycensus data, ACS MOEs, and maps.
+---
+
+```{r, include = FALSE}
+live_examples <- identical(Sys.getenv("ACSMOE_LIVE_EXAMPLES"), "true") &&
+  nzchar(Sys.getenv("CENSUS_API_KEY")) &&
+  requireNamespace("tidycensus", quietly = TRUE) &&
+  requireNamespace("dplyr", quietly = TRUE) &&
+  requireNamespace("sf", quietly = TRUE) &&
+  requireNamespace("ggplot2", quietly = TRUE)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = live_examples,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+This article is intended for the pkgdown site, not CRAN checks. It evaluates
+only when the site build sets `ACSMOE_LIVE_EXAMPLES=true` and provides a
+`CENSUS_API_KEY`.
+
+```{r, eval = !live_examples, echo = FALSE}
+cat(
+  "Live examples are disabled in this build. ",
+  "Set ACSMOE_LIVE_EXAMPLES=true and CENSUS_API_KEY to render the maps."
+)
+```
+
+The example uses `tidycensus` to download tract geometries and ACS estimate/MOE
+pairs, then uses `acsmoe` to propagate uncertainty and map the result. The
+workflow follows the margin-of-error framing in Kyle Walker's `tidycensus`
+article: <https://walker-data.com/tidycensus/articles/margins-of-error.html>.
+
+## Get tract data
+
+```{r setup}
+library(acsmoe)
+library(tidycensus)
+library(dplyr)
+library(sf)
+library(ggplot2)
+
+tidycensus::census_api_key(Sys.getenv("CENSUS_API_KEY"), install = FALSE)
+```
+
+We will estimate the population age 65 and older by summing age-by-sex cells
+from table `B01001`. The ACS API returns a row per variable per tract, with an
+estimate and a margin of error for each row.
+
+```{r get-data}
+vars_65plus <- paste0("B01001_", sprintf("%03d", c(20:25, 44:49)))
+
+ramsey_age <- get_acs(
+  geography = "tract",
+  variables = vars_65plus,
+  state = "MN",
+  county = "Ramsey",
+  year = 2022,
+  survey = "acs5",
+  geometry = TRUE
+)
+```
+
+## Propagate tract-level uncertainty
+
+With no covariance supplied, `acs_sum()` matches the standard Census
+root-sum-square MOE approximation used by `tidycensus::moe_sum()`. The benefit
+of using `acsmoe` here is that the same code path can later accept covariance
+when you have it.
+
+```{r tract-propagation}
+ramsey_65plus <- ramsey_age |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    estimate_65plus = sum(estimate),
+    moe_65plus = acs_sum(estimate, moe)$moe,
+    .groups = "drop"
+  ) |>
+  mutate(
+    cv_65plus = acs_cv(estimate_65plus, moe_65plus),
+    relative_moe = moe_65plus / estimate_65plus,
+    reliability = acs_reliability(estimate_65plus, moe_65plus)
+  )
+
+ramsey_65plus |>
+  st_drop_geometry() |>
+  select(GEOID, estimate_65plus, moe_65plus, cv_65plus, reliability) |>
+  head()
+```
+
+## Map estimates and uncertainty
+
+The estimate map is useful, but it is incomplete on its own. The relative-MOE
+and reliability maps show where the tract estimates are more or less stable.
+
+```{r estimate-map}
+ggplot(ramsey_65plus) +
+  geom_sf(aes(fill = estimate_65plus), color = "white", linewidth = 0.1) +
+  scale_fill_gradient(
+    low = "#f4f1de",
+    high = "#245953",
+    labels = scales::comma,
+    name = "Age 65+"
+  ) +
+  labs(
+    title = "Estimated population age 65+",
+    subtitle = "Ramsey County, MN tracts; ACS 2018-2022 5-year"
+  ) +
+  theme_void()
+```
+
+```{r relative-moe-map}
+ggplot(ramsey_65plus) +
+  geom_sf(aes(fill = relative_moe), color = "white", linewidth = 0.1) +
+  scale_fill_gradient(
+    low = "#e8f3f1",
+    high = "#a23e48",
+    labels = scales::percent,
+    name = "MOE / estimate"
+  ) +
+  labs(
+    title = "Relative uncertainty in age 65+ estimates",
+    subtitle = "Higher values indicate less stable tract estimates"
+  ) +
+  theme_void()
+```
+
+```{r reliability-map}
+ggplot(ramsey_65plus) +
+  geom_sf(aes(fill = reliability), color = "white", linewidth = 0.1) +
+  scale_fill_manual(
+    values = c(
+      reliable = "#2a9d8f",
+      caveat = "#e9c46a",
+      unreliable = "#e76f51"
+    ),
+    drop = FALSE,
+    name = "CV class"
+  ) +
+  labs(
+    title = "Reliability classes from coefficient of variation",
+    subtitle = "Default thresholds: reliable < 0.12, caveat < 0.40"
+  ) +
+  theme_void()
+```
+
+## Aggregate to custom regions
+
+Users often aggregate tracts into service areas, planning districts, or
+hand-built regions. Here we create a simple west/east split from tract
+centroids only to demonstrate the mechanics.
+
+```{r aggregate-regions}
+centroids <- st_coordinates(st_centroid(ramsey_65plus))
+
+ramsey_regions <- ramsey_65plus |>
+  mutate(region = if_else(centroids[, "X"] < median(centroids[, "X"]), "west", "east"))
+
+region_uncertainty <- acs_aggregate(
+  st_drop_geometry(ramsey_regions),
+  group_var = "region",
+  value_cols = "estimate_65plus",
+  moe_cols = "moe_65plus"
+) |>
+  mutate(
+    cv_65plus = acs_cv(estimate_65plus, moe_65plus),
+    relative_moe = moe_65plus / estimate_65plus
+  )
+
+region_shapes <- ramsey_regions |>
+  group_by(region) |>
+  summarize(.groups = "drop") |>
+  left_join(region_uncertainty, by = "region")
+
+region_uncertainty
+```
+
+```{r aggregate-map}
+ggplot(region_shapes) +
+  geom_sf(aes(fill = relative_moe), color = "white", linewidth = 0.4) +
+  geom_sf_text(aes(label = region), color = "white", fontface = "bold") +
+  scale_fill_gradient(
+    low = "#31572c",
+    high = "#bc4749",
+    labels = scales::percent,
+    name = "MOE / estimate"
+  ) +
+  labs(
+    title = "Aggregated uncertainty for custom regions",
+    subtitle = "Toy west/east split, shown only as an aggregation example"
+  ) +
+  theme_void()
+```
+
+## Sensitivity to covariance assumptions
+
+The default aggregation assumes zero covariance, matching the standard Census
+approximation. If you want a sensitivity analysis, `cov_strategy = "constant"`
+lets you compare against a simple common-correlation assumption. This does not
+estimate ACS covariance; it only propagates an assumption you explicitly pass.
+
+```{r covariance-sensitivity}
+zero_cov <- acs_aggregate(
+  st_drop_geometry(ramsey_regions),
+  group_var = "region",
+  value_cols = "estimate_65plus",
+  moe_cols = "moe_65plus",
+  cov_strategy = "zero"
+) |>
+  mutate(strategy = "zero covariance")
+
+positive_corr <- acs_aggregate(
+  st_drop_geometry(ramsey_regions),
+  group_var = "region",
+  value_cols = "estimate_65plus",
+  moe_cols = "moe_65plus",
+  cov_strategy = "constant",
+  cov_value = 0.20
+) |>
+  mutate(strategy = "constant correlation = 0.20")
+
+bind_rows(zero_cov, positive_corr) |>
+  mutate(relative_moe = moe_65plus / estimate_65plus) |>
+  select(region, strategy, estimate_65plus, moe_65plus, relative_moe)
+```
+
+The important distinction is methodological: `acsmoe` can propagate covariance
+when supplied, but it does not infer a covariance structure from ACS tabular
+MOEs. That inference problem is separate from the mechanics of propagation.
