@@ -8,7 +8,7 @@ rmvnorm_eigen <- function(n, mean, cov) {
 }
 
 simulate_draws <- function(estimates, moes, cov = NULL, n_sims = 1000,
-                           dist = c("normal", "truncated_normal"),
+                           dist = c("normal", "censored_normal"),
                            conf = 0.90) {
   dist <- match.arg(dist)
   validate_numeric(estimates, "estimates")
@@ -21,9 +21,9 @@ simulate_draws <- function(estimates, moes, cov = NULL, n_sims = 1000,
   }
   v <- covariance_from_inputs(moes, cov, conf = conf)
   draws <- rmvnorm_eigen(as.integer(n_sims), estimates, v)
-  if (dist == "truncated_normal") {
+  if (dist == "censored_normal") {
     warning(
-      "`truncated_normal` censors simulated draws at zero; it prevents negative values but does not preserve the input means or variances.",
+      "`censored_normal` replaces draws below zero with zero. This matches the convention used in Napierala & Denton (2017) and the ACS handbook semantics for zero estimates, but it is censoring rather than statistical truncation: it does not preserve the input mean or variance for cells whose estimate sits close to zero relative to its MOE.",
       call. = FALSE
     )
     draws <- pmax(draws, 0)
@@ -37,7 +37,9 @@ simulate_draws <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #' @param moes Numeric MOEs corresponding to `estimates`.
 #' @param cov Optional covariance matrix on the standard-error scale.
 #' @param n_sims Number of Monte Carlo simulations.
-#' @param dist Distribution assumption: `"normal"` or `"truncated_normal"`.
+#' @param dist Distribution assumption: `"normal"` or `"censored_normal"`. The
+#'   censored variant replaces below-zero draws with zero, matching the
+#'   convention used in Napierala & Denton (2017) for ACS counts.
 #' @param conf Confidence level associated with input MOEs.
 #' @return A numeric matrix of simulated draws.
 #' @examples
@@ -45,7 +47,7 @@ simulate_draws <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #' acs_simulate(c(x = 100, y = 50), c(10, 5), n_sims = 5)
 #' @export
 acs_simulate <- function(estimates, moes, cov = NULL, n_sims = 1000,
-                         dist = c("normal", "truncated_normal"), conf = 0.90) {
+                         dist = c("normal", "censored_normal"), conf = 0.90) {
   draws <- simulate_draws(estimates, moes, cov, n_sims, dist, conf)
   colnames(draws) <- names(estimates)
   draws
@@ -58,7 +60,9 @@ acs_simulate <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #' @param fn Function applied to each simulated row.
 #' @param cov Optional covariance matrix on the standard-error scale.
 #' @param n_sims Number of Monte Carlo simulations.
-#' @param dist Distribution assumption: `"normal"` or `"truncated_normal"`.
+#' @param dist Distribution assumption: `"normal"` or `"censored_normal"`. The
+#'   censored variant replaces below-zero draws with zero, matching the
+#'   convention used in Napierala & Denton (2017) for ACS counts.
 #' @param conf Confidence level associated with input MOEs.
 #' @param summary Summary to return: `"mean"`, `"median"`, or `"ci"`.
 #' @param point For `summary = "ci"`, point estimate to report alongside the
@@ -75,7 +79,7 @@ acs_simulate <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #'                 summary = "ci", conf = 0.90)
 #' @export
 acs_simulate_fn <- function(estimates, moes, fn, cov = NULL, n_sims = 1000,
-                            dist = c("normal", "truncated_normal"),
+                            dist = c("normal", "censored_normal"),
                             conf = 0.90,
                             summary = c("mean", "median", "ci"),
                             point = c("mean", "median")) {

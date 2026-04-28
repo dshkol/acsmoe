@@ -10,7 +10,7 @@ acs_simulate_fn(
   fn,
   cov = NULL,
   n_sims = 1000,
-  dist = c("normal", "truncated_normal"),
+  dist = c("normal", "censored_normal"),
   conf = 0.9,
   summary = c("mean", "median", "ci"),
   point = c("mean", "median")
@@ -27,7 +27,9 @@ acs_simulate_fn(
 
 \item{n_sims}{Number of Monte Carlo simulations.}
 
-\item{dist}{Distribution assumption: \code{"normal"} or \code{"truncated_normal"}.}
+\item{dist}{Distribution assumption: \code{"normal"} or \code{"censored_normal"}. The
+censored variant replaces below-zero draws with zero, matching the
+convention used in Napierala & Denton (2017) for ACS counts.}
 
 \item{conf}{Confidence level associated with input MOEs.}
 

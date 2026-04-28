@@ -30,10 +30,26 @@ test_that("simulate_fn forwards distribution and confidence settings", {
       moes = c(1, 1),
       fn = sum,
       n_sims = 100,
-      dist = "truncated_normal",
+      dist = "censored_normal",
       conf = 0.95
     ),
-    "does not preserve"
+    "censoring rather than statistical truncation"
   )
   expect_true(is.finite(out$estimate))
+})
+
+test_that("censored_normal replaces below-zero draws with exactly zero", {
+  set.seed(7)
+  draws <- suppressWarnings(acs_simulate(
+    estimates = c(0, 100),
+    moes = c(20, 20),
+    n_sims = 5000,
+    dist = "censored_normal"
+  ))
+  # All draws non-negative
+  expect_true(all(draws >= 0))
+  # Column 1 (estimate = 0): under censoring, half the draws should pile at
+  # exactly zero. (Under statistical truncation that share would be ~0.)
+  expect_gt(mean(draws[, 1] == 0), 0.45)
+  expect_lt(mean(draws[, 1] == 0), 0.55)
 })
