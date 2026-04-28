@@ -12,7 +12,8 @@ acs_simulate_fn(
   n_sims = 1000,
   dist = c("normal", "truncated_normal"),
   conf = 0.9,
-  summary = c("mean", "median", "ci")
+  summary = c("mean", "median", "ci"),
+  point = c("mean", "median")
 )
 }
 \arguments{
@@ -31,10 +32,18 @@ acs_simulate_fn(
 \item{conf}{Confidence level associated with input MOEs.}
 
 \item{summary}{Summary to return: \code{"mean"}, \code{"median"}, or \code{"ci"}.}
+
+\item{point}{For \code{summary = "ci"}, point estimate to report alongside the
+percentile interval: \code{"mean"} (default) or \code{"median"}.}
 }
 \value{
 A data frame summarizing the simulated derived statistic.
 }
 \description{
 Simulate a derived ACS statistic.
+}
+\details{
+For \code{summary = "ci"}, the returned interval is the central
+\code{conf}-level percentile interval of the simulated derived values. The
+reported \code{estimate} is the chosen \code{point} summary of those values.
 }

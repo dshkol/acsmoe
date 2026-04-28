@@ -58,17 +58,24 @@ acs_simulate <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #' @param dist Distribution assumption: `"normal"` or `"truncated_normal"`.
 #' @param conf Confidence level associated with input MOEs.
 #' @param summary Summary to return: `"mean"`, `"median"`, or `"ci"`.
+#' @param point For `summary = "ci"`, point estimate to report alongside the
+#'   percentile interval: `"mean"` (default) or `"median"`.
 #' @return A data frame summarizing the simulated derived statistic.
+#' @details For `summary = "ci"`, the returned interval is the central
+#'   `conf`-level percentile interval of the simulated derived values. The
+#'   reported `estimate` is the chosen `point` summary of those values.
 #' @export
 acs_simulate_fn <- function(estimates, moes, fn, cov = NULL, n_sims = 1000,
                             dist = c("normal", "truncated_normal"),
                             conf = 0.90,
-                            summary = c("mean", "median", "ci")) {
+                            summary = c("mean", "median", "ci"),
+                            point = c("mean", "median")) {
   if (!is.function(fn)) {
     stop("`fn` must be a function.", call. = FALSE)
   }
   dist <- match.arg(dist)
   summary <- match.arg(summary)
+  point <- match.arg(point)
   draws <- simulate_draws(estimates, moes, cov = cov, n_sims = n_sims,
                           dist = dist, conf = conf)
   values <- apply(draws, 1, fn)
@@ -78,6 +85,9 @@ acs_simulate_fn <- function(estimates, moes, fn, cov = NULL, n_sims = 1000,
   if (summary == "median") {
     return(data.frame(estimate = stats::median(values), se = stats::sd(values)))
   }
-  qs <- stats::quantile(values, probs = c(0.05, 0.95), names = FALSE)
-  data.frame(estimate = mean(values), lower = qs[1], upper = qs[2])
+  validate_conf(conf)
+  alpha <- (1 - conf) / 2
+  qs <- stats::quantile(values, probs = c(alpha, 1 - alpha), names = FALSE)
+  centre <- if (point == "median") stats::median(values) else mean(values)
+  data.frame(estimate = centre, lower = qs[1], upper = qs[2])
 }
