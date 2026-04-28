@@ -2,6 +2,9 @@
 ^[.]gitignore$
 ^[.]github$
 ^[.]Rproj[.]user$
+^[.]claude$
 ^acsmoe[.]Rproj$
 ^_pkgdown[.]yml$
 ^docs$
+^notes$
+^LICENSE\.md$
