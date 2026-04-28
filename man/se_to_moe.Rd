@@ -17,3 +17,7 @@ Numeric margin of error.
 \description{
 Convert a standard error to an ACS-style margin of error.
 }
+\examples{
+se_to_moe(c(6, 15, 60))
+se_to_moe(6, conf = 0.95)
+}

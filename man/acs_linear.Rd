@@ -29,3 +29,6 @@ A scalar \code{cov} is a covariance, not a correlation. In contrast,
 \code{acs_aggregate(cov_strategy = "constant")} accepts a scalar correlation
 because that interface derives covariances from group-specific MOEs.
 }
+\examples{
+acs_linear(c(100, 50, 25), c(10, 8, 6), weights = c(2, -1, 0.5))
+}

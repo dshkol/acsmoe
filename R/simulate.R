@@ -40,6 +40,9 @@ simulate_draws <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #' @param dist Distribution assumption: `"normal"` or `"truncated_normal"`.
 #' @param conf Confidence level associated with input MOEs.
 #' @return A numeric matrix of simulated draws.
+#' @examples
+#' set.seed(1)
+#' acs_simulate(c(x = 100, y = 50), c(10, 5), n_sims = 5)
 #' @export
 acs_simulate <- function(estimates, moes, cov = NULL, n_sims = 1000,
                          dist = c("normal", "truncated_normal"), conf = 0.90) {
@@ -64,6 +67,12 @@ acs_simulate <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #' @details For `summary = "ci"`, the returned interval is the central
 #'   `conf`-level percentile interval of the simulated derived values. The
 #'   reported `estimate` is the chosen `point` summary of those values.
+#' @examples
+#' set.seed(1)
+#' acs_simulate_fn(c(100, 50), c(10, 5), fn = sum, n_sims = 500)
+#' set.seed(1)
+#' acs_simulate_fn(c(100, 50), c(10, 5), fn = sum, n_sims = 500,
+#'                 summary = "ci", conf = 0.90)
 #' @export
 acs_simulate_fn <- function(estimates, moes, fn, cov = NULL, n_sims = 1000,
                             dist = c("normal", "truncated_normal"),

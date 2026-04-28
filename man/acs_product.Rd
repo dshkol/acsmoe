@@ -25,3 +25,6 @@ A data frame with \code{estimate}, \code{moe}, and \code{se}.
 \description{
 Propagate ACS uncertainty for a product.
 }
+\examples{
+acs_product(10, 2, 50, 5)
+}

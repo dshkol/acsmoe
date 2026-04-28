@@ -5,6 +5,9 @@
 #' @param conf Confidence level associated with `moe`.
 #' @return Numeric coefficient of variation, using standard error divided by
 #'   absolute estimate.
+#' @examples
+#' acs_cv(estimate = 1000, moe = 80)
+#' acs_cv(estimate = c(1000, 100, 0), moe = c(80, 60, 5))
 #' @export
 acs_cv <- function(estimate, moe, conf = 0.90) {
   validate_numeric(estimate, "estimate")
@@ -27,6 +30,9 @@ acs_cv <- function(estimate, moe, conf = 0.90) {
 #'   are not a Census Bureau standard and should be adjusted to your domain,
 #'   agency guidance, or project-specific quality standard.
 #' @return Ordered factor with levels `reliable`, `caveat`, `unreliable`.
+#' @examples
+#' acs_reliability(estimate = 1000, moe = 80)
+#' acs_reliability(estimate = c(1000, 200, 50), moe = c(80, 60, 50))
 #' @export
 acs_reliability <- function(estimate, moe,
                             conf = 0.90,

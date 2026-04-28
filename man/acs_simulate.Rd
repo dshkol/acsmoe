@@ -32,3 +32,7 @@ A numeric matrix of simulated draws.
 \description{
 Simulate ACS estimates from published estimates and MOEs.
 }
+\examples{
+set.seed(1)
+acs_simulate(c(x = 100, y = 50), c(10, 5), n_sims = 5)
+}

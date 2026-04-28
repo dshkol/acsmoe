@@ -47,3 +47,10 @@ For \code{summary = "ci"}, the returned interval is the central
 \code{conf}-level percentile interval of the simulated derived values. The
 reported \code{estimate} is the chosen \code{point} summary of those values.
 }
+\examples{
+set.seed(1)
+acs_simulate_fn(c(100, 50), c(10, 5), fn = sum, n_sims = 500)
+set.seed(1)
+acs_simulate_fn(c(100, 50), c(10, 5), fn = sum, n_sims = 500,
+                summary = "ci", conf = 0.90)
+}

@@ -20,3 +20,7 @@ absolute estimate.
 \description{
 Calculate coefficient of variation from an ACS estimate and MOE.
 }
+\examples{
+acs_cv(estimate = 1000, moe = 80)
+acs_cv(estimate = c(1000, 100, 0), moe = c(80, 60, 5))
+}

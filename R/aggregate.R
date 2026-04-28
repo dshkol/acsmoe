@@ -55,6 +55,15 @@ aggregate_covariance <- function(row_ids, value_col, moes, cov_strategy,
 #'   not alphabetically.
 #' @return A data frame with one row per group and aggregated estimate/MOE
 #'   columns.
+#' @examples
+#' tracts <- data.frame(
+#'   region = c("north", "north", "south", "south"),
+#'   pop = c(1000, 1200, 900, 1100),
+#'   pop_moe = c(120, 140, 100, 130)
+#' )
+#' acs_aggregate(tracts, "region", "pop", "pop_moe")
+#' acs_aggregate(tracts, "region", "pop", "pop_moe",
+#'               cov_strategy = "constant", cov_value = 0.25)
 #' @export
 acs_aggregate <- function(data, group_var, value_cols, moe_cols,
                           cov_strategy = c("zero", "supplied", "constant"),

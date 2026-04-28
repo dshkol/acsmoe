@@ -31,3 +31,6 @@ where the numerator is a subset of the denominator. It does not validate
 that \code{num <= denom}; behavior for non-nested ratios is formulaic rather
 than a claim that the inputs define a valid proportion.
 }
+\examples{
+acs_prop(num = 10, num_moe = 2, denom = 50, denom_moe = 5)
+}

@@ -30,3 +30,7 @@ Ordered factor with levels \code{reliable}, \code{caveat}, \code{unreliable}.
 \description{
 Categorize ACS estimate reliability by CV thresholds.
 }
+\examples{
+acs_reliability(estimate = 1000, moe = 80)
+acs_reliability(estimate = c(1000, 200, 50), moe = c(80, 60, 50))
+}

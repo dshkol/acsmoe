@@ -21,3 +21,7 @@ A data frame with \code{estimate}, \code{lower}, \code{upper}, and \code{moe}.
 \description{
 Convert an ACS MOE to lower and upper confidence bounds.
 }
+\examples{
+moe_ci(estimate = 100, moe = 10)
+moe_ci(estimate = c(100, 200), moe = c(10, 25), conf_out = 0.99)
+}

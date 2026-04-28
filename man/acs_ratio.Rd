@@ -25,3 +25,6 @@ A data frame with \code{estimate}, \code{moe}, and \code{se}.
 \description{
 Propagate ACS uncertainty for a ratio.
 }
+\examples{
+acs_ratio(num = 10, num_moe = 2, denom = 50, denom_moe = 5)
+}

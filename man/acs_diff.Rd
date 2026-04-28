@@ -25,3 +25,7 @@ A data frame with \code{estimate}, \code{moe}, and \code{se}.
 \description{
 Propagate ACS uncertainty for a difference.
 }
+\examples{
+acs_diff(100, 10, 40, 8)
+acs_diff(100, 10, 40, 8, cov = 5)
+}
