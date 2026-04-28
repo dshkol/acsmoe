@@ -17,6 +17,7 @@ result_df <- function(estimate, moe, se = NULL) {
 #'   `acs_aggregate(cov_strategy = "constant")` accepts a scalar correlation
 #'   because that interface derives covariances from group-specific MOEs.
 #' @return A one-row data frame with `estimate`, `moe`, and `se`.
+#' @export
 acs_sum <- function(estimates, moes, cov = NULL, conf = 0.90) {
   validate_numeric(estimates, "estimates")
   validate_numeric(moes, "moes")
@@ -50,6 +51,7 @@ acs_sum <- function(estimates, moes, cov = NULL, conf = 0.90) {
 #' @param cov Covariance between the two estimates on the standard-error scale.
 #' @param conf Confidence level associated with input and output MOEs.
 #' @return A data frame with `estimate`, `moe`, and `se`.
+#' @export
 acs_diff <- function(estimate1, moe1, estimate2, moe2, cov = 0, conf = 0.90) {
   args <- recycle_common(
     estimate1, moe1, estimate2, moe2, cov,
@@ -74,6 +76,7 @@ acs_diff <- function(estimate1, moe1, estimate2, moe2, cov = 0, conf = 0.90) {
 #' @param cov Numerator-denominator covariance on the standard-error scale.
 #' @param conf Confidence level associated with input and output MOEs.
 #' @return A data frame with `estimate`, `moe`, and `se`.
+#' @export
 acs_ratio <- function(num, num_moe, denom, denom_moe, cov = 0, conf = 0.90) {
   args <- recycle_common(
     num, num_moe, denom, denom_moe, cov,
@@ -105,6 +108,7 @@ acs_ratio <- function(num, num_moe, denom, denom_moe, cov = 0, conf = 0.90) {
 #'   that `num <= denom`; behavior for non-nested ratios is formulaic rather
 #'   than a claim that the inputs define a valid proportion.
 #' @return A data frame with `estimate`, `moe`, and `se`.
+#' @export
 acs_prop <- function(num, num_moe, denom, denom_moe, cov = 0, conf = 0.90) {
   if (is_zero_cov(cov)) {
     args <- recycle_common(
@@ -134,6 +138,7 @@ acs_prop <- function(num, num_moe, denom, denom_moe, cov = 0, conf = 0.90) {
 #' @param cov Covariance between the two estimates on the standard-error scale.
 #' @param conf Confidence level associated with input and output MOEs.
 #' @return A data frame with `estimate`, `moe`, and `se`.
+#' @export
 acs_product <- function(estimate1, moe1, estimate2, moe2, cov = 0, conf = 0.90) {
   args <- recycle_common(
     estimate1, moe1, estimate2, moe2, cov,
@@ -164,6 +169,7 @@ acs_product <- function(estimate1, moe1, estimate2, moe2, cov = 0, conf = 0.90) 
 #'   `acs_aggregate(cov_strategy = "constant")` accepts a scalar correlation
 #'   because that interface derives covariances from group-specific MOEs.
 #' @return A one-row data frame with `estimate`, `moe`, and `se`.
+#' @export
 acs_linear <- function(estimates, moes, weights, cov = NULL, conf = 0.90) {
   validate_numeric(estimates, "estimates")
   validate_numeric(moes, "moes")

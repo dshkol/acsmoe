@@ -40,6 +40,7 @@ simulate_draws <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #' @param dist Distribution assumption: `"normal"` or `"truncated_normal"`.
 #' @param conf Confidence level associated with input MOEs.
 #' @return A numeric matrix of simulated draws.
+#' @export
 acs_simulate <- function(estimates, moes, cov = NULL, n_sims = 1000,
                          dist = c("normal", "truncated_normal"), conf = 0.90) {
   draws <- simulate_draws(estimates, moes, cov, n_sims, dist, conf)
@@ -58,6 +59,7 @@ acs_simulate <- function(estimates, moes, cov = NULL, n_sims = 1000,
 #' @param conf Confidence level associated with input MOEs.
 #' @param summary Summary to return: `"mean"`, `"median"`, or `"ci"`.
 #' @return A data frame summarizing the simulated derived statistic.
+#' @export
 acs_simulate_fn <- function(estimates, moes, fn, cov = NULL, n_sims = 1000,
                             dist = c("normal", "truncated_normal"),
                             conf = 0.90,

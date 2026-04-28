@@ -60,6 +60,7 @@ aggregate_covariance <- function(row_ids, value_col, moes, cov_strategy,
 #'   the standard-error scale.
 #' @return A data frame with one row per group and aggregated estimate/MOE
 #'   columns.
+#' @export
 acs_aggregate <- function(data, group_var, value_cols, moe_cols,
                           cov_strategy = c("zero", "supplied", "constant"),
                           cov_value = 0, conf = 0.90) {

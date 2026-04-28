@@ -5,6 +5,7 @@
 #' @param conf Confidence level associated with `moe`.
 #' @return Numeric coefficient of variation, using standard error divided by
 #'   absolute estimate.
+#' @export
 acs_cv <- function(estimate, moe, conf = 0.90) {
   validate_numeric(estimate, "estimate")
   validate_numeric(moe, "moe")
@@ -24,6 +25,7 @@ acs_cv <- function(estimate, moe, conf = 0.90) {
 #'   thresholds. Defaults follow common ACS applied practice; adjust these for
 #'   your domain, agency guidance, or project-specific quality standard.
 #' @return Ordered reliability category.
+#' @export
 acs_reliability <- function(estimate, moe,
                             conf = 0.90,
                             thresholds = c(reliable = 0.12, caveat = 0.40)) {

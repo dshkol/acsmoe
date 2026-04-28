@@ -35,6 +35,7 @@ recycle_common <- function(..., names) {
 #' @param moe Numeric margin of error.
 #' @param conf Confidence level associated with `moe`.
 #' @return Numeric standard error.
+#' @export
 moe_to_se <- function(moe, conf = 0.90) {
   validate_numeric(moe, "moe")
   moe / acs_z(conf)
@@ -45,6 +46,7 @@ moe_to_se <- function(moe, conf = 0.90) {
 #' @param se Numeric standard error.
 #' @param conf Desired confidence level.
 #' @return Numeric margin of error.
+#' @export
 se_to_moe <- function(se, conf = 0.90) {
   validate_numeric(se, "se")
   se * acs_z(conf)
@@ -57,6 +59,7 @@ se_to_moe <- function(se, conf = 0.90) {
 #' @param conf_in Confidence level associated with `moe`.
 #' @param conf_out Desired confidence level for the returned interval.
 #' @return A data frame with `estimate`, `lower`, `upper`, and `moe`.
+#' @export
 moe_ci <- function(estimate, moe, conf_in = 0.90, conf_out = 0.95) {
   validate_numeric(estimate, "estimate")
   validate_numeric(moe, "moe")
