@@ -19,11 +19,13 @@ acs_reliability(
 \item{conf}{Confidence level associated with \code{moe}.}
 
 \item{thresholds}{Named numeric vector with \code{reliable} and \code{caveat} CV
-thresholds. Defaults follow common ACS applied practice; adjust these for
-your domain, agency guidance, or project-specific quality standard.}
+thresholds. Defaults of 0.12 and 0.40 reflect commonly used applied
+conventions (e.g., reliable below 12\% CV, unreliable above 40\% CV); these
+are not a Census Bureau standard and should be adjusted to your domain,
+agency guidance, or project-specific quality standard.}
 }
 \value{
-Ordered reliability category.
+Ordered factor with levels \code{reliable}, \code{caveat}, \code{unreliable}.
 }
 \description{
 Categorize ACS estimate reliability by CV thresholds.

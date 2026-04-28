@@ -22,9 +22,11 @@ acs_cv <- function(estimate, moe, conf = 0.90) {
 #' @param moe Numeric MOE.
 #' @param conf Confidence level associated with `moe`.
 #' @param thresholds Named numeric vector with `reliable` and `caveat` CV
-#'   thresholds. Defaults follow common ACS applied practice; adjust these for
-#'   your domain, agency guidance, or project-specific quality standard.
-#' @return Ordered reliability category.
+#'   thresholds. Defaults of 0.12 and 0.40 reflect commonly used applied
+#'   conventions (e.g., reliable below 12% CV, unreliable above 40% CV); these
+#'   are not a Census Bureau standard and should be adjusted to your domain,
+#'   agency guidance, or project-specific quality standard.
+#' @return Ordered factor with levels `reliable`, `caveat`, `unreliable`.
 #' @export
 acs_reliability <- function(estimate, moe,
                             conf = 0.90,

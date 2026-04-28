@@ -21,6 +21,17 @@ derived estimates, Walker and Herman's \code{tidycensus} package, and the ACS
 uncertainty literature by Spielman, Folch, Nagle, Arribas-Bel, and
 Koschinsky. See the README and vignettes for full references.
 }
+\section{Output shape}{
+
+Propagation helpers (\code{acs_sum}, \code{acs_diff}, \code{acs_ratio}, \code{acs_prop},
+\code{acs_product}, \code{acs_linear}) return a data frame with columns \code{estimate},
+\code{moe}, and \code{se}. \code{moe_ci()} returns \code{estimate}, \code{lower}, \code{upper}, \code{moe}.
+\code{acs_simulate()} returns a numeric matrix of draws. \code{acs_simulate_fn()}
+returns either \verb{(estimate, se)} for \code{summary = "mean"}/\code{"median"}, or
+\verb{(estimate, lower, upper)} for \code{summary = "ci"}. \code{acs_cv()} and
+\code{acs_reliability()} return atomic vectors.
+}
+
 \seealso{
 Useful links:
 \itemize{
