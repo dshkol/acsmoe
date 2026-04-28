@@ -17,7 +17,7 @@ acs_aggregate(
 \arguments{
 \item{data}{A data frame containing ACS estimate and MOE columns.}
 
-\item{group_var}{Grouping column, supplied as a string or bare column name.}
+\item{group_var}{Name of the grouping column, supplied as a single string.}
 
 \item{value_cols}{Character vector of estimate column names to aggregate.}
 
@@ -44,4 +44,7 @@ Aggregate paired ACS estimate and MOE columns by group.
 not a covariance. This differs from scalar \code{cov} arguments in core
 propagation functions, where a scalar means an off-diagonal covariance on
 the standard-error scale.
+
+Output rows are ordered by first appearance of each group level in \code{data},
+not alphabetically.
 }

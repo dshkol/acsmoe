@@ -1,11 +1,3 @@
-group_values <- function(data, group_var) {
-  if (is.character(group_var) && length(group_var) == 1L) {
-    return(data[[group_var]])
-  }
-  name <- as.character(substitute(group_var))
-  data[[name]]
-}
-
 resolve_col_vector <- function(cols, data, name) {
   if (!is.character(cols)) {
     stop("`", name, "` must be a character vector of column names.",
@@ -45,7 +37,7 @@ aggregate_covariance <- function(row_ids, value_col, moes, cov_strategy,
 #' Aggregate paired ACS estimate and MOE columns by group.
 #'
 #' @param data A data frame containing ACS estimate and MOE columns.
-#' @param group_var Grouping column, supplied as a string or bare column name.
+#' @param group_var Name of the grouping column, supplied as a single string.
 #' @param value_cols Character vector of estimate column names to aggregate.
 #' @param moe_cols Character vector of MOE column names paired with
 #'   `value_cols`.
@@ -58,6 +50,9 @@ aggregate_covariance <- function(row_ids, value_col, moes, cov_strategy,
 #'   not a covariance. This differs from scalar `cov` arguments in core
 #'   propagation functions, where a scalar means an off-diagonal covariance on
 #'   the standard-error scale.
+#'
+#'   Output rows are ordered by first appearance of each group level in `data`,
+#'   not alphabetically.
 #' @return A data frame with one row per group and aggregated estimate/MOE
 #'   columns.
 #' @export
@@ -65,19 +60,25 @@ acs_aggregate <- function(data, group_var, value_cols, moe_cols,
                           cov_strategy = c("zero", "supplied", "constant"),
                           cov_value = 0, conf = 0.90) {
   cov_strategy <- match.arg(cov_strategy)
+  if (!is.character(group_var) || length(group_var) != 1L) {
+    stop("`group_var` must be a single column name as a string.",
+         call. = FALSE)
+  }
+  if (!group_var %in% names(data)) {
+    stop("`group_var` must identify an existing column: '", group_var,
+         "' not found.", call. = FALSE)
+  }
   value_cols <- resolve_col_vector(value_cols, data, "value_cols")
   moe_cols <- resolve_col_vector(moe_cols, data, "moe_cols")
   if (length(value_cols) != length(moe_cols)) {
     stop("`value_cols` and `moe_cols` must have the same length.", call. = FALSE)
   }
-  groups <- group_values(data, group_var)
-  group_name <- if (is.character(group_var)) group_var else as.character(substitute(group_var))
-  if (is.null(groups)) {
-    stop("`group_var` must identify an existing column.", call. = FALSE)
-  }
-
-  split_ids <- split(seq_len(nrow(data)), groups, drop = TRUE)
-  out <- data.frame(stats::setNames(list(names(split_ids)), group_name),
+  groups <- data[[group_var]]
+  level_order <- unique(groups)
+  level_order <- level_order[!is.na(level_order)]
+  split_ids <- split(seq_len(nrow(data)), factor(groups, levels = level_order),
+                     drop = TRUE)
+  out <- data.frame(stats::setNames(list(names(split_ids)), group_var),
                     stringsAsFactors = FALSE)
 
   for (i in seq_along(value_cols)) {
