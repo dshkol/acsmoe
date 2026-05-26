@@ -1,8 +1,8 @@
 Package: acsmoe
 Title: Propagate Uncertainty for ACS Tabular Estimates
-Version: 0.1.0.9000
+Version: 0.1.0
 Authors@R:
-    person("Dmitry", "Shkolnik", email = "dmitry@dshkol.com", role = c("aut", "cre"))
+    person("Dmitry", "Shkolnik", email = "shkolnikd@gmail.com", role = c("aut", "cre"))
 Description: Utilities for propagating uncertainty in American Community
     Survey tabular workflows that use published estimates and margins of error,
     following U.S. Census Bureau derived-estimate guidance and complementing
@@ -13,6 +13,7 @@ License: MIT + file LICENSE
 URL: https://dshkol.github.io/acsmoe/, https://github.com/dshkol/acsmoe
 BugReports: https://github.com/dshkol/acsmoe/issues
 Encoding: UTF-8
+Language: en-US
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:

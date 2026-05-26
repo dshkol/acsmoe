@@ -8,3 +8,5 @@
 ^docs$
 ^notes$
 ^LICENSE\.md$
+^vignettes/articles$
+^cran-comments\.md$

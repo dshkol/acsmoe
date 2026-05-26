@@ -169,7 +169,7 @@ tabular estimate/MOE workflows after ACS data have already been obtained.
 - Folch, David C., Daniel Arribas-Bel, Julia Koschinsky, and Seth E. Spielman.
   2016. "Spatial Variation in the Quality of American Community Survey
   Estimates." *Demography* 53(5): 1535-1554.
-  <https://doi.org/10.1007/s13524-016-0499-1>
+  <https://link.springer.com/article/10.1007/s13524-016-0499-1>
 - Folch, David C., and Seth E. Spielman. `geoss/censumander`. Historical Python
   reference implementation used here only for development validation.
   <https://github.com/geoss/censumander>
