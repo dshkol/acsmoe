@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   articles/tidycensus-maps: tidycensus-maps.html
   tidycensus-workflow: tidycensus-workflow.html
-last_built: 2026-04-26T14:16Z
+last_built: 2026-05-26T01:52Z
 urls:
   reference: https://dshkol.github.io/acsmoe/reference
   article: https://dshkol.github.io/acsmoe/articles

@@ -1,11 +1,13 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://dshkol.github.io/acsmoe/404.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/LICENSE-text.html</loc></url>
+<url><loc>https://dshkol.github.io/acsmoe/LICENSE.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/articles/index.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/articles/tidycensus-maps.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/articles/tidycensus-workflow.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/authors.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/index.html</loc></url>
+<url><loc>https://dshkol.github.io/acsmoe/news/index.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/reference/acs_aggregate.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/reference/acs_cv.html</loc></url>
 <url><loc>https://dshkol.github.io/acsmoe/reference/acs_diff.html</loc></url>
